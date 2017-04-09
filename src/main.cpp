@@ -5,10 +5,10 @@
 #include "print.h"
 #include <util/delay.h>
 
-
 #include "keys.hpp"
 #include "test.hpp"
 #include "index_sequence.hpp"
+#include "list_utils.hpp"
 
 #include "usb_keyboard_debug.h"
 
@@ -18,55 +18,6 @@ const T& min(const T& a, const T& b)
     return (b < a) ? b : a;
 }
 
-template <class Kbd>
-class firmware {
-public:
-    void run();
-};
-
-template <class List, size_t N>
-struct index_typelist;
-
-template <template <class...> class List, class T, class... Ts, size_t N>
-struct index_typelist<List<T,Ts...>, N> {
-    using type = typename index_typelist<List<Ts...>, N-1>::type;
-};
-
-template <template <class...> class List, class T, class... Ts>
-struct index_typelist<List<T,Ts...>, 0> {
-    using type = T;
-};
-
-template <class List, size_t N>
-struct index_vallist;
-
-template <template <auto...> class List, auto T, auto... Ts, size_t N>
-struct index_vallist<List<T,Ts...>, N> {
-    static constexpr auto value = index_vallist<List<Ts...>, N-1>::value;
-};
-
-template <template <auto...> class List, auto T, auto... Ts>
-struct index_vallist<List<T,Ts...>, 0> {
-    static constexpr auto value = T;
-};
-
-template <class List1, class List2>
-struct cat_typelist;
-
-template <template <auto...> class List, auto... Ts, auto... Us>
-struct cat_typelist<List<Ts...>, List<Us...>> {
-    using type = List<Ts...,Us...>;
-};
-
-template <class List> struct sequence_for_vallist_impl;
-
-template <template <auto...> class List, auto... Vals>
-struct sequence_for_vallist_impl<List<Vals...>> {
-    using type = make_index_sequence<sizeof...(Vals)>;
-};
-
-template<class List>
-using sequence_for_vallist = typename sequence_for_vallist_impl<List>::type;
 
 template <pin Col, class RowPinset, class Row>
 struct build_pin_set;
@@ -217,8 +168,20 @@ int* matrix_scan(pin_set<RowPins...>, index_sequence<RowIdxs...>, typelist<ColSc
     return pressed;
 }
 
+
+/*template <class Kbd, class... Rows>
+void validate_layout(type<layout<Rows...>>) {
+    static_assert(sizeof...(Rows) == variadic_size<Kbd::rows>(), "A layout has the wrong number of rows");
+    }*/
+
+
 template <class Kbd>
-void firmware<Kbd>::run() {
+void validate_keyboard() {
+//    (validate_layout<Kbd>(type<Kbd::layouts>), ...);
+}
+
+template <class Kbd>
+void run_firmware() {
     while (true) {
         using scan_set = scan_set_for<Kbd>;
         using rows = typename Kbd::rows;
@@ -237,18 +200,6 @@ void firmware<Kbd>::run() {
     }
 }
 
-
-/*template <class Kbd, class... Rows>
-void validate_layout(type<layout<Rows...>>) {
-    static_assert(sizeof...(Rows) == variadic_size<Kbd::rows>(), "A layout has the wrong number of rows");
-    }*/
-
-
-template <class Kbd>
-void validate_keyboard() {
-//    (validate_layout<Kbd>(type<Kbd::layouts>), ...);
-}
-
 #define CPU_PRESCALE(n)	(CLKPR = 0x80, CLKPR = (n))
 
 
@@ -260,7 +211,5 @@ int main() {
 
     //   validate_keyboard<keyboard_to_run>();
     setup_input_pins(keyboard_to_run::columns{});
-    firmware<keyboard_to_run> frm;
-
-    frm.run();
+    run_firmware<keyboard_to_run>();
 }
