@@ -130,21 +130,31 @@ void test_key (int* pressed) {
 template <pin P> void power_pin() {
     auto info = get_pin_info<P>();
 
+    //DDR <- 1: sets pin to output mode
     *info.ddr  |=  (1 << info.n);
+
+    //PORT <- 0: sets pin to low output
     *info.port &= ~(1 << info.n);
 }
 
 template <pin P> void unpower_pin() {
     auto info = get_pin_info<P>();
 
+    //DDR <- 0: sets pin to input mode
     *info.ddr  &= ~(1 << info.n);
+
+    //PORT <- 0: sets pin to normal mode
     *info.port &= ~(1 << info.n);
 }
+
 
 template <pin P> void pin_set_for_reading() {
     auto info = get_pin_info<P>();
 
+    //DDR <- 0: sets pin to input mode
     *info.ddr  &= ~(1 << info.n);
+
+    //PORT <- 0: sets pin to pullup resistor mode
     *info.port |=  (1 << info.n);
 }
 
