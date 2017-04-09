@@ -42,7 +42,7 @@ auto test_keyboard::layouts() {
 Current state:
 
 - A configuration like the above will allow you to type things!
-- Supports Teensy 2
+- Supports Teensy 2 (ATMEGA32U4)
 
 To do:
 
