@@ -12,33 +12,50 @@
 
 #include "usb_keyboard_debug.h"
 
+// Simple std::min implementation
 template<class T>
 const T& min(const T& a, const T& b)
 {
     return (b < a) ? b : a;
 }
 
-
-template <pin Col, class RowPinset, class Row>
+// Maps column pins onto key positions and removes blank spaces from the row
+//
+// Example:
+//     Row = b4
+//     ColPinset = pin_set<f6, f7, c7, c6>
+//     KeyPositions = row<1,1,0,1>
+//     type = row<f6, f7,     c6>
+//          c7 missed out ^^^
+template <pin Row, class ColPinset, class KeyPositions>
 struct build_pin_set;
 
-template <pin Col, pin P, pin... Ps, int... Bs>
-struct build_pin_set<Col, pin_set<P,Ps...>, row<1,Bs...>> {
+// There is a key at this position, so record a pin to test for it, then recurse
+template <pin Row, pin P, pin... Ps, int... Bs>
+struct build_pin_set<Row, pin_set<P,Ps...>, row<1,Bs...>> {
     using type = typename cat_typelist<pin_set<P>,
-                              typename build_pin_set<Col, pin_set<Ps...>, row<Bs...>>::type>::type;
+                              typename build_pin_set<Row, pin_set<Ps...>, row<Bs...>>::type>::type;
 };
 
-template <pin Col, pin P, pin... Ps, int... Bs>
-struct build_pin_set<Col, pin_set<P,Ps...>, row<0,Bs...>> {
-    using type = typename build_pin_set<Col, pin_set<Ps...>, row<Bs...>>::type;
+// There is no key at this position, so don't record a pin to test for it, then recurse
+template <pin Row, pin P, pin... Ps, int... Bs>
+struct build_pin_set<Row, pin_set<P,Ps...>, row<0,Bs...>> {
+    using type = typename build_pin_set<Row, pin_set<Ps...>, row<Bs...>>::type;
 };
 
-template <pin Col, class RowPinset>
-struct build_pin_set<Col, RowPinset, row<>> {
+// Base case
+template <pin Row, class ColPinset>
+struct build_pin_set<Row, ColPinset, row<>> {
     using type = pin_set<>;
 };
 
-
+// Carries out build_pin_set on all rows in a key_positions set
+//
+// Example:
+//     RowPins = pin_set<b4, b6>
+//     ColumnPins = pin_set<f6, f7, c7, c6>
+//     Pos = typelist<row<1,1,0,1>, row<0,1,1,0>>
+//     type = typelist<row<f6,f7,c6>, row<f7,c7>>
 template <class RowPins, class ColumnPins, class Pos>
 struct build_all_pin_sets;
 
@@ -47,6 +64,8 @@ struct build_all_pin_sets<pin_set<RowPins...>, ColumnPins, typelist<Rows...>> {
     using type = typelist<typename build_pin_set<RowPins, ColumnPins, Rows>::type...>;
 };
 
+
+// Nice helper for build_all_pin_sets
 template <class Kbd>
 using scan_set_for =
     typename build_all_pin_sets<typename Kbd::rows,
@@ -127,6 +146,7 @@ void test_key (int* pressed) {
     }
 }
 
+// Power a pin so that keys on that line can be tested
 template <pin P> void power_pin() {
     auto info = get_pin_info<P>();
 
@@ -137,6 +157,7 @@ template <pin P> void power_pin() {
     *info.port &= ~(1 << info.n);
 }
 
+// Stop powering a pin
 template <pin P> void unpower_pin() {
     auto info = get_pin_info<P>();
 
@@ -147,7 +168,7 @@ template <pin P> void unpower_pin() {
     *info.port &= ~(1 << info.n);
 }
 
-
+// Set up a pin for reading at a later time
 template <pin P> void pin_set_for_reading() {
     auto info = get_pin_info<P>();
 
@@ -158,6 +179,7 @@ template <pin P> void pin_set_for_reading() {
     *info.port |=  (1 << info.n);
 }
 
+// Set up all pins in a pin set for reading
 template <pin... Ps> void setup_input_pins(pin_set<Ps...>) {
     (pin_set_for_reading<Ps>(), ...);
 }
@@ -190,6 +212,8 @@ void validate_keyboard() {
 //    (validate_layout<Kbd>(type<Kbd::layouts>), ...);
 }
 
+
+// Main firmware loop
 template <class Kbd>
 void run_firmware() {
     while (true) {
@@ -211,7 +235,6 @@ void run_firmware() {
 }
 
 #define CPU_PRESCALE(n)	(CLKPR = 0x80, CLKPR = (n))
-
 
 int main() {
     CPU_PRESCALE(0);
