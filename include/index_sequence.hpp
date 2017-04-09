@@ -1,7 +1,9 @@
+// This file contains an implementation of std::index_sequence and std::make_index_sequence from C++14
+// http://stackoverflow.com/questions/17424477/implementation-c14-make-integer-sequence
+
 #ifndef etkf_index_sequence_hpp
 #define etkf_index_sequence_hpp
 
-//http://stackoverflow.com/questions/17424477/implementation-c14-make-integer-sequence
 
 namespace etkf {
     template <size_t... Ints>
