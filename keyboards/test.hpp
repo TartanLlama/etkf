@@ -5,10 +5,10 @@ using namespace etkf;
 using namespace etkf::pins;
 
 struct test_keyboard {
-    using rows = pin_set<f4, f1, f6, f0>;
-    using columns = pin_set<d7, d6, c7, c6, d3, d2, d1, d0, b7, b3, b2, b1, b0>;
+    using rows = pin_set<b4, b6, f1, f0>;
+    using columns = pin_set<f6, f7, c7, c6, d3, d2, d1, d0, b7, b3, b2, b1, b0>;
 
-    auto layouts();
+    static auto layouts();
 
     using key_positions = typelist<
         row<1,1,1,1,1,1,1,1,1,1,1,1,1>,

@@ -106,6 +106,9 @@ if(CMAKE_BUILD_TYPE MATCHES Debug)
    set(CMAKE_CXX_FLAGS_DEBUG "-O0 -save-temps -g -gdwarf-3 -gstrict-dwarf")
 endif(CMAKE_BUILD_TYPE MATCHES Debug)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pedantic -pedantic-errors -fno-exceptions")
+
+
 ##########################################################################
 # compiler options for all build types
 ##########################################################################
@@ -114,17 +117,14 @@ add_definitions("-fpack-struct")
 add_definitions("-fshort-enums")
 add_definitions("-Wall")
 add_definitions("-Werror")
-add_definitions("-pedantic")
-add_definitions("-pedantic-errors")
 add_definitions("-funsigned-char")
 add_definitions("-funsigned-bitfields")
 add_definitions("-ffunction-sections")
 add_definitions("-c")
-add_definitions("-std=c++17")
 
 ##########################################################################
 # include search paths
 ##########################################################################
 include_directories(include keyboards)
 
-add_avr_executable(kbd src/main.cpp src/usb_keyboard.c)
+add_avr_executable(kbd src/main.cpp src/usb_keyboard_debug.c src/print.c)
