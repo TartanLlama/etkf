@@ -43,6 +43,8 @@ Current state:
 
 - A configuration like the above will allow you to type things!
 - Supports Teensy 2 (ATMEGA32U4)
+- 6 key rollover
+
 
 To do:
 
