@@ -135,15 +135,42 @@ char itoc (int i) {
     return 'x';
 }
 
+bool is_modifier (keys::key k) {
+    using namespace keys;
+
+    switch (k) {
+    case lctl:
+    case lsft:
+    case lalt:
+    case lgui:
+    case rctl:
+    case rsft:
+    case ralt:
+    case rgui:
+        return true;
+
+    default:
+        return false;
+    }
+}
 
 template <class Layout, pin RowPin, size_t RowN, pin ColPin, size_t ColN>
-void test_key (static_vector<keys::key,6>& pressed) {
+void test_key (static_vector<keys::key,6>& pressed, uint8_t& mod_keys) {
     auto info = get_pin_info<ColPin>();
 
+    using row = typename index_typelist<Layout, RowN>::type;
+    auto key = index_vallist<row, ColN>::value;
+
+
     if (!((*info.pin) & (1 << info.n))) {
-        using row = typename index_typelist<Layout, RowN>::type;
-        pressed.push_back(index_vallist<row, ColN>::value);
+        if (is_modifier(key)) {
+            mod_keys |= key;
+        }
+        else {
+            pressed.push_back(key);
+        }
     }
+
 }
 
 // Power a pin so that keys on that line can be tested
@@ -185,18 +212,20 @@ template <pin... Ps> void setup_input_pins(pin_set<Ps...>) {
 }
 
 template <class Layout, pin RowPin, size_t RowN, pin... ColPins, size_t... ColNs>
-void scan_columns(static_vector<keys::key,6>& pressed, pin_set<ColPins...>, index_sequence<ColNs...>) {
+void scan_columns(static_vector<keys::key,6>& pressed, uint8_t& mod_keys,
+                  pin_set<ColPins...>, index_sequence<ColNs...>) {
     power_pin<RowPin>();
-    (test_key<Layout, RowPin, RowN, ColPins, ColNs>(pressed), ...);
+    (test_key<Layout, RowPin, RowN, ColPins, ColNs>(pressed, mod_keys), ...);
     unpower_pin<RowPin>();
 }
 
 template <class Layout, pin... RowPins, size_t... RowIdxs, class... ColScans>
 static_vector<keys::key,6> matrix_scan(pin_set<RowPins...>, index_sequence<RowIdxs...>, typelist<ColScans...>) {
     static_vector<keys::key,6> pressed;
+    keyboard_modifier_keys = 0;
 
-    (scan_columns<Layout, RowPins, RowIdxs>(pressed, ColScans{}, sequence_for_vallist<ColScans>{}), ...);
-
+    (scan_columns<Layout, RowPins, RowIdxs>(pressed, keyboard_modifier_keys,
+                                            ColScans{}, sequence_for_vallist<ColScans>{}), ...);
     return pressed;
 }
 

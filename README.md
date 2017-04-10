@@ -45,7 +45,6 @@ Current state:
 - Supports Teensy 2 (ATMEGA32U4)
 - 6 key rollover
 
-
 To do:
 
 - Modifier keys
