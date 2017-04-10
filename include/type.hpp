@@ -14,7 +14,7 @@ namespace etkf {
     template <class T> struct type{};
     template <class... T> struct typelist{};
     template <pins::pin... T> struct pin_set{};
-    template <int... T> struct row{};
+    template <auto... T> struct row{};
 }
 
 #endif

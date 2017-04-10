@@ -4,6 +4,7 @@
 namespace etkf {
     namespace keys {
         enum key {
+            null = 0,
             ctrl = 0x01,
             shft = 0x02,
             alt	 = 0x04,

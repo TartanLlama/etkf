@@ -9,6 +9,7 @@
 #include "test.hpp"
 #include "index_sequence.hpp"
 #include "list_utils.hpp"
+#include "static_vector.hpp"
 
 #include "usb_keyboard_debug.h"
 
@@ -136,13 +137,12 @@ char itoc (int i) {
 
 
 template <class Layout, pin RowPin, size_t RowN, pin ColPin, size_t ColN>
-void test_key (int* pressed) {
+void test_key (static_vector<keys::key,6>& pressed) {
     auto info = get_pin_info<ColPin>();
 
     if (!((*info.pin) & (1 << info.n))) {
-        //TODO fix pressed
         using row = typename index_typelist<Layout, RowN>::type;
-        pressed[0] = index_vallist<row, ColN>::value;
+        pressed.push_back(index_vallist<row, ColN>::value);
     }
 }
 
@@ -185,15 +185,15 @@ template <pin... Ps> void setup_input_pins(pin_set<Ps...>) {
 }
 
 template <class Layout, pin RowPin, size_t RowN, pin... ColPins, size_t... ColNs>
-void scan_columns(int* pressed, pin_set<ColPins...>, index_sequence<ColNs...>) {
+void scan_columns(static_vector<keys::key,6>& pressed, pin_set<ColPins...>, index_sequence<ColNs...>) {
     power_pin<RowPin>();
     (test_key<Layout, RowPin, RowN, ColPins, ColNs>(pressed), ...);
     unpower_pin<RowPin>();
 }
 
 template <class Layout, pin... RowPins, size_t... RowIdxs, class... ColScans>
-int* matrix_scan(pin_set<RowPins...>, index_sequence<RowIdxs...>, typelist<ColScans...>) {
-    static int pressed[6];
+static_vector<keys::key,6> matrix_scan(pin_set<RowPins...>, index_sequence<RowIdxs...>, typelist<ColScans...>) {
+    static_vector<keys::key,6> pressed;
 
     (scan_columns<Layout, RowPins, RowIdxs>(pressed, ColScans{}, sequence_for_vallist<ColScans>{}), ...);
 
@@ -221,16 +221,15 @@ void run_firmware() {
         using rows = typename Kbd::rows;
         auto pressed = matrix_scan<decltype(Kbd::layouts())> (rows{}, sequence_for_vallist<rows>{}, scan_set{});
 
-        auto n_pressed = 1; // TODO fix
-        for (auto i = 0; i < min(6, n_pressed); ++i) {
+        for (auto i = 0u; i < pressed.size(); ++i) {
             keyboard_keys[i] = pressed[i];
         }
 
-        usb_keyboard_send();
-
-        for (auto i = 0; i < 6; ++i) {
-            pressed[i] = 0;
+        for (auto i = pressed.size(); i < 6; ++i) {
+            keyboard_keys[i] = 0;
         }
+
+        usb_keyboard_send();
     }
 }
 
