@@ -5,14 +5,6 @@ namespace etkf {
     namespace keys {
         enum key {
             null = 0,
-            lctl = 0x01,
-            lsft = 0x02,
-            lalt = 0x04,
-            lgui = 0x08,
-            rctl = 0x10,
-            rsft = 0x20,
-            ralt = 0x40,
-            rgui = 0x80,
 
             a	 = 4,
             b	 = 5,
@@ -110,7 +102,55 @@ namespace etkf {
             k9 = 97,
             k0 = 98,
             kdot = 99, //keypad dot
+
+            lctl,
+            lsft,
+            lalt,
+            lgui,
+            rctl,
+            rsft,
+            ralt,
+            rgui,
+
         };
+    }
+
+    inline bool is_modifier (keys::key k) {
+        using namespace keys;
+
+        switch (k) {
+        case lctl:
+        case lsft:
+        case lalt:
+        case lgui:
+        case rctl:
+        case rsft:
+        case ralt:
+        case rgui:
+            return true;
+
+        default:
+            return false;
+        }
+    }
+
+
+    inline uint8_t get_mod_mask (keys::key k) {
+        using namespace keys;
+
+        switch (k) {
+        case lctl: return 0x01;
+        case lsft: return 0x02;
+        case lalt: return 0x04;
+        case lgui: return 0x08;
+        case rctl: return 0x10;
+        case rsft: return 0x20;
+        case ralt: return 0x40;
+        case rgui: return 0x80;
+
+        default:
+            __builtin_unreachable();
+        }
     }
 }
 

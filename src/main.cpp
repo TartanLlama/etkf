@@ -113,45 +113,7 @@ constexpr pin_info get_pin_info() {
     else if constexpr (P == f6) { return pin_info{ &PINF, &DDRF, &PORTF, 6 }; }
     else if constexpr (P == f7) { return pin_info{ &PINF, &DDRF, &PORTF, 7 }; }
 
-    //TODO assert or something
-    return {&PINB, &DDRB, &PORTB, 0};
-}
-
-
-char itoc (int i) {
-    switch (i) {
-    case 0: return '0';
-    case 1:         return '1';
-    case 2:         return '2';
-    case 3:         return '3';
-    case 4:         return '4';
-    case 5:         return '5';
-    case 6:         return '6';
-    case 7:         return '7';
-    case 8:         return '8';
-    case 9:         return '9';
-
-    }
-    return 'x';
-}
-
-bool is_modifier (keys::key k) {
-    using namespace keys;
-
-    switch (k) {
-    case lctl:
-    case lsft:
-    case lalt:
-    case lgui:
-    case rctl:
-    case rsft:
-    case ralt:
-    case rgui:
-        return true;
-
-    default:
-        return false;
-    }
+    __builtin_unreachable();
 }
 
 template <class Layout, pin RowPin, size_t RowN, pin ColPin, size_t ColN>
@@ -164,7 +126,7 @@ void test_key (static_vector<keys::key,6>& pressed, uint8_t& mod_keys) {
 
     if (!((*info.pin) & (1 << info.n))) {
         if (is_modifier(key)) {
-            mod_keys |= key;
+            mod_keys |= get_mod_mask(key);
         }
         else {
             pressed.push_back(key);
@@ -215,6 +177,7 @@ template <class Layout, pin RowPin, size_t RowN, pin... ColPins, size_t... ColNs
 void scan_columns(static_vector<keys::key,6>& pressed, uint8_t& mod_keys,
                   pin_set<ColPins...>, index_sequence<ColNs...>) {
     power_pin<RowPin>();
+    _delay_us(30);  // without this wait read unstable value.
     (test_key<Layout, RowPin, RowN, ColPins, ColNs>(pressed, mod_keys), ...);
     unpower_pin<RowPin>();
 }
