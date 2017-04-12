@@ -217,6 +217,7 @@ void run_firmware() {
 
         auto layer = base_layer;
 
+        //First check if a layer key is pressed down
         for (auto&& k : pressed) {
             using namespace keys;
             if (k[0] >= lay0 && k[0] <= lay9) {
@@ -224,6 +225,7 @@ void run_firmware() {
             }
         }
 
+        //Then check if we need to change base layer
         for (auto&& k : pressed) {
             using namespace keys;
             if (k[layer] >= swi0 && k[layer] <= swi9) {
@@ -233,6 +235,7 @@ void run_firmware() {
 
         static_vector<keys::key, 6> real_keys;
 
+        //Finally lookup the correct key to send by using the correct layer
         for (auto&& key_map : pressed) {
             auto key = key_map[layer];
 
@@ -244,11 +247,12 @@ void run_firmware() {
             }
         }
 
+        //Write the keys into the usb send buffer
         for (auto i = 0u; i < real_keys.size(); ++i) {
             keyboard_keys[i] = real_keys[i];
         }
 
-
+        //0 out the rest so that we aren't sending old keys
         for (auto i = real_keys.size(); i < 6; ++i) {
             keyboard_keys[i] = 0;
         }
