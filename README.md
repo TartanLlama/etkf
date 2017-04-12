@@ -45,10 +45,11 @@ Current state:
 - Supports Teensy 2 (ATMEGA32U4)
 - 6 key rollover
 - Modifier keys
+- Basic layer support
 
 To do:
 
-- Layers
+- Change default layer (e.g. QWERTY to Dvorak)
 - Debouncing
 - NKRO
 - Better compile-time diagnostics
@@ -56,6 +57,7 @@ To do:
 - Rewrite of the USB code
 - Support more chips
 - Port some keyboards
+- Profile-driven optimisations
 
 Dependencies:
 

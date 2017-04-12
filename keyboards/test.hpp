@@ -25,9 +25,18 @@ auto test_keyboard::layouts() {
     using namespace etkf::keys;
 
     return typelist<
-        row<tab, quot,comm,dot, p,   y,   f,   g,   c,   r,   l,   bspc, a>,
-        row<lctl,a,   o,   e,   u,   i,   d,   h,   t,   n,   s,   ent>,
-        row<lsft,scln,q,   j,   k,   x,   b,   m,   w,   v,   z,   del>,
-        row<caps,lgui,esc,lalt, spc,      b,   c, left,down,up,  righ>
+        typelist<
+            row<tab, quot,comm,dot, p,   y,   f,   g,   c,   r,   l,   bspc, a>,
+            row<lctl,a,   o,   e,   u,   i,   d,   h,   t,   n,   s,   ent>,
+            row<lsft,scln,q,   j,   k,   x,   b,   m,   w,   v,   z,   del>,
+            row<caps,lgui,esc,lalt, spc,      lay1,c, left,down,up,  righ>
+            >,
+
+        typelist<
+            row<tab, one, two, thre,four,five,six, sevn,eigh,nine,zero,bspc, a>,
+            row<lctl,a,   o,   e,   u,   i,   d,   h,   t,   n,   s,   ent>,
+            row<lsft,scln,q,   j,   k,   x,   b,   m,   w,   v,   z,   del>,
+            row<caps,lgui,esc,lalt, spc,      lay1,c, left,down,up,  righ>
+            >
     >{};
 }

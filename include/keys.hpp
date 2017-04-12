@@ -112,6 +112,16 @@ namespace etkf {
             ralt,
             rgui,
 
+            lay1, //layer 1
+            lay2,
+            lay3,
+            lay4,
+            lay5,
+            lay6,
+            lay7,
+            lay8,
+            lay9,
+
         };
     }
 

@@ -9,7 +9,7 @@ namespace etkf {
     public:
         static_vector() : m_storage{}, m_count{0} {
             for (auto& e : m_storage) {
-                e = keys::null;
+                e = T{};
             }
         }
 

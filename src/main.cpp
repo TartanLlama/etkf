@@ -7,6 +7,7 @@
 
 #include "keys.hpp"
 #include "test.hpp"
+#include "array.hpp"
 #include "index_sequence.hpp"
 #include "list_utils.hpp"
 #include "static_vector.hpp"
@@ -116,23 +117,18 @@ constexpr pin_info get_pin_info() {
     __builtin_unreachable();
 }
 
-template <class Layout, pin RowPin, size_t RowN, pin ColPin, size_t ColN>
-void test_key (static_vector<keys::key,6>& pressed, uint8_t& mod_keys) {
+
+template <pin RowPin, size_t RowN, pin ColPin, size_t ColN, class... Layouts>
+void test_key (static_vector<array<keys::key,sizeof...(Layouts)>,16>& pressed,
+               uint8_t& mod_keys, typelist<Layouts...>) {
     auto info = get_pin_info<ColPin>();
 
-    using row = typename index_typelist<Layout, RowN>::type;
-    auto key = index_vallist<row, ColN>::value;
-
-
     if (!((*info.pin) & (1 << info.n))) {
-        if (is_modifier(key)) {
-            mod_keys |= get_mod_mask(key);
-        }
-        else {
-            pressed.push_back(key);
-        }
+        array<keys::key,sizeof...(Layouts)> possible_keys {
+            index_vallist<typename index_typelist<Layouts, RowN>::type, ColN>::value...
+        };
+        pressed.push_back(possible_keys);
     }
-
 }
 
 // Power a pin so that keys on that line can be tested
@@ -173,21 +169,21 @@ template <pin... Ps> void setup_input_pins(pin_set<Ps...>) {
     (pin_set_for_reading<Ps>(), ...);
 }
 
-template <class Layout, pin RowPin, size_t RowN, pin... ColPins, size_t... ColNs>
-void scan_columns(static_vector<keys::key,6>& pressed, uint8_t& mod_keys,
-                  pin_set<ColPins...>, index_sequence<ColNs...>) {
+template <class Layouts, pin RowPin, size_t RowN, pin... ColPins, size_t... ColNs>
+void scan_columns(static_vector<array<keys::key,variadic_size<Layouts>::value>,16>& pressed,
+                  uint8_t& mod_keys, pin_set<ColPins...>, index_sequence<ColNs...>) {
     power_pin<RowPin>();
     _delay_us(30);  // without this wait read unstable value.
-    (test_key<Layout, RowPin, RowN, ColPins, ColNs>(pressed, mod_keys), ...);
+    (test_key<RowPin, RowN, ColPins, ColNs>(pressed, mod_keys, Layouts{}), ...);
     unpower_pin<RowPin>();
 }
 
-template <class Layout, pin... RowPins, size_t... RowIdxs, class... ColScans>
-static_vector<keys::key,6> matrix_scan(pin_set<RowPins...>, index_sequence<RowIdxs...>, typelist<ColScans...>) {
-    static_vector<keys::key,6> pressed;
-    keyboard_modifier_keys = 0;
+template <class Layouts, pin... RowPins, size_t... RowIdxs, class... ColScans>
+auto matrix_scan(uint8_t& mod_keys, pin_set<RowPins...>, index_sequence<RowIdxs...>, typelist<ColScans...>) {
+    constexpr auto n_layers = variadic_size<Layouts>::value;
+    static_vector<array<keys::key,n_layers>,16> pressed;
 
-    (scan_columns<Layout, RowPins, RowIdxs>(pressed, keyboard_modifier_keys,
+    (scan_columns<Layouts, RowPins, RowIdxs>(pressed, mod_keys,
                                             ColScans{}, sequence_for_vallist<ColScans>{}), ...);
     return pressed;
 }
@@ -211,13 +207,38 @@ void run_firmware() {
     while (true) {
         using scan_set = scan_set_for<Kbd>;
         using rows = typename Kbd::rows;
-        auto pressed = matrix_scan<decltype(Kbd::layouts())> (rows{}, sequence_for_vallist<rows>{}, scan_set{});
+        keyboard_modifier_keys = 0;
+        auto pressed = matrix_scan<decltype(Kbd::layouts())> (keyboard_modifier_keys,
+                                                              rows{}, sequence_for_vallist<rows>{}, scan_set{});
 
-        for (auto i = 0u; i < pressed.size(); ++i) {
-            keyboard_keys[i] = pressed[i];
+        auto layer = 0;
+
+        for (auto&& k : pressed) {
+            using namespace keys;
+            if (k[0] >= lay1 && k[0] <= lay9) {
+                layer = k[0] - lay1 + 1;
+            }
         }
 
-        for (auto i = pressed.size(); i < 6; ++i) {
+        static_vector<keys::key, 6> real_keys;
+
+        for (auto&& key_map : pressed) {
+            auto key = key_map[layer];
+
+            if (is_modifier(key)) {
+                keyboard_modifier_keys |= get_mod_mask(key);
+            }
+            else {
+                real_keys.push_back(key);
+            }
+        }
+
+        for (auto i = 0u; i < real_keys.size(); ++i) {
+            keyboard_keys[i] = real_keys[i];
+        }
+
+
+        for (auto i = real_keys.size(); i < 6; ++i) {
             keyboard_keys[i] = 0;
         }
 

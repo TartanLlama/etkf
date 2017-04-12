@@ -59,6 +59,19 @@ namespace etkf {
 
     template<class List>
     using sequence_for_vallist = typename sequence_for_vallist_impl<List>::type;
+
+    template <class List>
+    struct variadic_size;
+
+    template <template <class...> class List, class... Ts>
+    struct variadic_size<List<Ts...>> {
+        static constexpr auto value = sizeof...(Ts);
+    };
+
+    template <template <auto...> class List, auto... Ts>
+    struct variadic_size<List<Ts...>> {
+        static constexpr auto value = sizeof...(Ts);
+    };
 }
 
 #endif
