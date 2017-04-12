@@ -229,10 +229,6 @@ void run_firmware() {
             }
         }
 
-
-        phex16(layer);
-        pchar('\n');
-
         static_vector<keys::key, 6> real_keys;
 
         for (auto&& key_map : pressed) {
