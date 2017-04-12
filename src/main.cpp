@@ -204,6 +204,8 @@ void validate_keyboard() {
 // Main firmware loop
 template <class Kbd>
 void run_firmware() {
+    auto base_layer = 0;
+
     while (true) {
         using scan_set = scan_set_for<Kbd>;
         using rows = typename Kbd::rows;
@@ -211,14 +213,25 @@ void run_firmware() {
         auto pressed = matrix_scan<decltype(Kbd::layouts())> (keyboard_modifier_keys,
                                                               rows{}, sequence_for_vallist<rows>{}, scan_set{});
 
-        auto layer = 0;
+        auto layer = base_layer;
 
         for (auto&& k : pressed) {
             using namespace keys;
-            if (k[0] >= lay1 && k[0] <= lay9) {
-                layer = k[0] - lay1 + 1;
+            if (k[0] >= lay0 && k[0] <= lay9) {
+                layer = k[0] - lay0;
             }
         }
+
+        for (auto&& k : pressed) {
+            using namespace keys;
+            if (k[layer] >= swi0 && k[layer] <= swi9) {
+                base_layer = k[layer] - swi0;
+            }
+        }
+
+
+        phex16(layer);
+        pchar('\n');
 
         static_vector<keys::key, 6> real_keys;
 

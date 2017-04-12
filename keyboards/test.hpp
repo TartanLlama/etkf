@@ -26,17 +26,32 @@ auto test_keyboard::layouts() {
 
     return typelist<
         typelist<
-            row<tab, quot,comm,dot, p,   y,   f,   g,   c,   r,   l,   bspc, a>,
+            row<tab, quot,comm,dot, p,   y,   f,   g,   c,   r,   l,   bspc, lay3>,
             row<lctl,a,   o,   e,   u,   i,   d,   h,   t,   n,   s,   ent>,
             row<lsft,scln,q,   j,   k,   x,   b,   m,   w,   v,   z,   del>,
-            row<caps,lgui,esc,lalt, spc,      lay1,c, left,down,up,  righ>
+            row<caps,lgui,esc,lalt, spc,      lay1,lay3,left,down,up,  righ>
             >,
 
         typelist<
-            row<tab, one, two, thre,four,five,six, sevn,eigh,nine,zero,bspc, a>,
+            row<tab, one, two, thre,four,five,six, sevn,eigh,nine,zero,bspc, lay3>,
             row<lctl,a,   o,   e,   u,   i,   d,   h,   t,   n,   s,   ent>,
             row<lsft,scln,q,   j,   k,   x,   b,   m,   w,   v,   z,   del>,
-            row<caps,lgui,esc,lalt, spc,      lay1,c, left,down,up,  righ>
+            row<caps,lgui,esc,lalt, spc,      lay1,lay3,   left,down,up,  righ>
+            >,
+
+        typelist<
+            row<tab, q,   w,   e,   r,   t,   y,   u,   i,   o,   p,   bspc, lay3>,
+            row<lctl,a,   s,   d,   f,   g,   h,   j,   k,   l,   scln,ent>,
+            row<lsft,z,   x,   c,   v,   b,   n,   m,   comm,dot, slsh,del>,
+            row<caps,lgui,esc,lalt, spc,      lay1,lay3,   left,down,up,  righ>
+            >,
+
+        typelist<
+            row<tab, swi0,swi2,e,   r,   t,   y,   u,   i,   o,   p,   bspc, lay3>,
+            row<lctl,a,   s,   d,   f,   g,   h,   j,   k,   l,   scln,ent>,
+            row<lsft,z,   x,   c,   v,   b,   n,   m,   comm,dot, slsh,del>,
+            row<caps,lgui,esc,lalt, spc,      lay1,lay3,   left,down,up,  righ>
             >
+
     >{};
 }

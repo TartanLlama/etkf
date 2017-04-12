@@ -112,7 +112,8 @@ namespace etkf {
             ralt,
             rgui,
 
-            lay1, //layer 1
+            lay0, //layer 0
+            lay1,
             lay2,
             lay3,
             lay4,
@@ -121,6 +122,18 @@ namespace etkf {
             lay7,
             lay8,
             lay9,
+
+            swi0, //switch base layer
+            swi1,
+            swi2,
+            swi3,
+            swi4,
+            swi5,
+            swi6,
+            swi7,
+            swi8,
+            swi9,
+
 
         };
     }
