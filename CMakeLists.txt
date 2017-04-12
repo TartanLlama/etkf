@@ -25,7 +25,14 @@ set(AVR_L_FUSE 0xc3)
 
 ### END TOOLCHAIN SETUP AREA #############################################
 
-include(generic-gcc-avr.cmake)
+# Add path for custom modules
+set(CMAKE_MODULE_PATH
+  ${CMAKE_MODULE_PATH}
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
+  )
+
+include(generic-gcc-avr)
+include(AddKeyboard)
 
 ##########################################################################
 # name your project
@@ -125,6 +132,15 @@ add_definitions("-c")
 ##########################################################################
 # include search paths
 ##########################################################################
-include_directories(include keyboards)
+include_directories(include)
+
+add_subdirectory(keyboards)
+
+if (KEYBOARD_TO_BUILD)
+  include_directories(${KEYBOARD_DIR_${KEYBOARD_TO_BUILD}})
+  message(STATUS "Building keyboard ${KEYBOARD_TO_BUILD} from directory ${KEYBOARD_DIR_${KEYBOARD_TO_BUILD}}")
+else()
+  message(FATAL_ERROR "Must specify a keyboard to build with -DKEYBOARD_TO_BUILD=\"<name>\"")
+endif()
 
 add_avr_executable(kbd src/main.cpp src/usb_keyboard_debug.c src/print.c)

@@ -5,8 +5,10 @@
 #include "print.h"
 #include <util/delay.h>
 
+//This file will be provided by the build system and gives the keyboard configuration
+#include "config.hpp"
+
 #include "keys.hpp"
-#include "test.hpp"
 #include "array.hpp"
 #include "index_sequence.hpp"
 #include "list_utils.hpp"
