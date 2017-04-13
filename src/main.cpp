@@ -8,6 +8,7 @@
 //This file will be provided by the build system and gives the keyboard configuration
 #include "config.hpp"
 
+#include "debug.hpp"
 #include "keys.hpp"
 #include "array.hpp"
 #include "index_sequence.hpp"
@@ -191,15 +192,19 @@ auto matrix_scan(uint8_t& mod_keys, pin_set<RowPins...>, index_sequence<RowIdxs.
 }
 
 
-/*template <class Kbd, class... Rows>
-void validate_layout(type<layout<Rows...>>) {
-    static_assert(sizeof...(Rows) == variadic_size<Kbd::rows>(), "A layout has the wrong number of rows");
-    }*/
+template <class Kbd, class... Rows>
+void validate_layout(typelist<Rows...>) {
+    static_assert(sizeof...(Rows) == variadic_size<typename Kbd::rows>::value, "A layout has the wrong number of rows");
+}
 
+template <class Kbd, class... Layouts>
+void validate_layouts(typelist<Layouts...>) {
+    (validate_layout<Kbd>(Layouts{}), ...);
+}
 
 template <class Kbd>
 void validate_keyboard() {
-//    (validate_layout<Kbd>(type<Kbd::layouts>), ...);
+    validate_layouts<Kbd>(decltype(Kbd::layouts()){});
 }
 
 
@@ -269,7 +274,10 @@ int main() {
     while (!usb_configured()) /* wait */ ;
     _delay_ms(10000);
 
-    //   validate_keyboard<keyboard_to_run>();
+    if constexpr (run_validations) {
+        validate_keyboard<keyboard_to_run>();
+    }
+
     setup_input_pins(keyboard_to_run::columns{});
     run_firmware<keyboard_to_run>();
 }
