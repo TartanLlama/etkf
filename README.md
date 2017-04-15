@@ -1,7 +1,7 @@
 # etkf
 Embarrassingly templated keyboard framework
 
-The aim of this is to have very terse descriptions of keyboards and give good compile-time diagnostics when mistaeks are made. Here's the entire configuration file for a simple 40% Dvorak keyboard:
+The aim of this is to have very terse descriptions of keyboards and give good compile-time diagnostics when mistakes are made. Here's the entire configuration file for a simple 40% Dvorak keyboard:
 
 ```
 
