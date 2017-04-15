@@ -1,9 +1,10 @@
 # etkf
 Embarrassingly templated keyboard framework
 
-The aim of this is to have very terse descriptions of keyboards and give good compile-time diagnostics when mistaeks are made. Here's the entire configuration file for a 40% keyboard:
+The aim of this is to have very terse descriptions of keyboards and give good compile-time diagnostics when mistaeks are made. Here's the entire configuration file for a simple 40% Dvorak keyboard:
 
 ```
+
 #include "keys.hpp"
 #include "type.hpp"
 
@@ -31,15 +32,23 @@ auto test_keyboard::layouts() {
     using namespace etkf::keys;
 
     return typelist<
-        row<tab, quot,comm,dot, p,   y,   f,   g,   c,   r,   l,   bspc, a>,
-        row<lctl,a,   o,   e,   u,   i,   d,   h,   t,   n,   s,   ent>,
-        row<lsft,scln,q,   j,   k,   x,   b,   m,   w,   v,   z,   del>,
-        row<caps,lgui,esc,lalt, spc,      b,   c, left,down,up,  righ>
+        typelist<
+            row<tab, quot,comm,dot, p,   y,   f,   g,   c,   r,   l,   bspc, null>,
+            row<lctl,a,   o,   e,   u,   i,   d,   h,   t,   n,   s,   ent>,
+            row<lsft,scln,q,   j,   k,   x,   b,   m,   w,   v,   z,   del>,
+            row<caps,lgui,esc,lalt, spc,      null,null,left,down,up,  righ>
+            >
     >{};
 }
 ```
 
-Current state:
+### How to add a new keyboard:
+
+There is a Python script which will do all of the legwork for you:
+
+    tools/add_new_keyboard.py <keyboard name>
+
+### Current state:
 
 - A configuration like the above will allow you to type things!
 - Supports Teensy 2 (ATMEGA32U4)
@@ -48,7 +57,7 @@ Current state:
 - Basic layer support
 - Change default layer (e.g. QWERTY to Dvorak)
 
-To do:
+### To do:
 
 - Debouncing
 - NKRO
