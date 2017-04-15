@@ -46,10 +46,10 @@ Current state:
 - 6 key rollover
 - Modifier keys
 - Basic layer support
+- Change default layer (e.g. QWERTY to Dvorak)
 
 To do:
 
-- Change default layer (e.g. QWERTY to Dvorak)
 - Debouncing
 - NKRO
 - Better compile-time diagnostics
@@ -61,7 +61,7 @@ To do:
 
 Dependencies:
 
-- C++17 AVR compiler (I build a GCC7 cross-compiler from source)
+- C++17 AVR compiler (you can build one by following [these instructions](http://www.atmel.com/webdoc/AVRLibcReferenceManual/install_tools.html))
 - CMake
 - Hardware to run it on
 - Nachos (optional)
