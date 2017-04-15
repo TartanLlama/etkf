@@ -14,6 +14,7 @@
 #include "index_sequence.hpp"
 #include "list_utils.hpp"
 #include "static_vector.hpp"
+#include "validations.hpp"
 
 #include "usb_keyboard_debug.h"
 
@@ -189,23 +190,6 @@ auto matrix_scan(uint8_t& mod_keys, pin_set<RowPins...>, index_sequence<RowIdxs.
     (scan_columns<Layouts, RowPins, RowIdxs>(pressed, mod_keys,
                                             ColScans{}, sequence_for_vallist<ColScans>{}), ...);
     return pressed;
-}
-
-
-template <class Kbd, class... Rows>
-void validate_layout(typelist<Rows...>) {
-    static_assert(sizeof...(Rows) == variadic_size<typename Kbd::rows>::value,
-                  "A layout has the wrong number of rows");
-}
-
-template <class Kbd, class... Layouts>
-void validate_layouts(typelist<Layouts...>) {
-    (validate_layout<Kbd>(Layouts{}), ...);
-}
-
-template <class Kbd>
-void validate_keyboard() {
-    validate_layouts<Kbd>(decltype(Kbd::layouts()){});
 }
 
 
