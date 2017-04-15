@@ -68,7 +68,7 @@ There is a Python script which will do all of the legwork for you:
 - Port some keyboards
 - Profile-driven optimisations
 
-Dependencies:
+### Dependencies:
 
 - C++17 AVR compiler (you can build one by following [these instructions](http://www.atmel.com/webdoc/AVRLibcReferenceManual/install_tools.html))
 - CMake
