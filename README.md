@@ -42,6 +42,15 @@ auto test_keyboard::layouts() {
 }
 ```
 
+Currently it has only been tested on Linux, but I guess it could work elsewhere if you can get the toolchain set up.
+
+### How to build:
+
+    mkdir build
+    cd build
+    cmake -DKEYBOARD_TO_BUILD=<keyboard name> ..
+    make
+
 ### How to add a new keyboard:
 
 There is a Python script which will do all of the legwork for you:
