@@ -194,7 +194,8 @@ auto matrix_scan(uint8_t& mod_keys, pin_set<RowPins...>, index_sequence<RowIdxs.
 
 template <class Kbd, class... Rows>
 void validate_layout(typelist<Rows...>) {
-    static_assert(sizeof...(Rows) == variadic_size<typename Kbd::rows>::value, "A layout has the wrong number of rows");
+    static_assert(sizeof...(Rows) == variadic_size<typename Kbd::rows>::value,
+                  "A layout has the wrong number of rows");
 }
 
 template <class Kbd, class... Layouts>
