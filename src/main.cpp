@@ -79,55 +79,59 @@ using scan_set_for =
                                 typename Kbd::key_positions>::type;
 
 struct pin_info {
-    constexpr pin_info(volatile uint8_t* p_pin, volatile uint8_t* p_ddr, volatile uint8_t* p_port, int p_n)
-        : pin{p_pin}, ddr{p_ddr}, port{p_port}, n{p_n}
-    {}
-
-    volatile uint8_t* pin;
-    volatile uint8_t* ddr;
-    volatile uint8_t* port;
+    uint32_t pin;
+    uint32_t ddr;
+    uint32_t port;
     int n;
 };
 
-template <pin P>
-constexpr pin_info get_pin_info() {
-    if constexpr (P == b0) { return pin_info{ &PINB, &DDRB, &PORTB, 0 }; }
-    else if constexpr (P == b1) { return pin_info{ &PINB, &DDRB, &PORTB, 1 }; }
-    else if constexpr (P == b2) { return pin_info{ &PINB, &DDRB, &PORTB, 2 }; }
-    else if constexpr (P == b3) { return pin_info{ &PINB, &DDRB, &PORTB, 3 }; }
-    else if constexpr (P == b4) { return pin_info{ &PINB, &DDRB, &PORTB, 4 }; }
-    else if constexpr (P == b5) { return pin_info{ &PINB, &DDRB, &PORTB, 5 }; }
-    else if constexpr (P == b6) { return pin_info{ &PINB, &DDRB, &PORTB, 6 }; }
-    else if constexpr (P == b7) { return pin_info{ &PINB, &DDRB, &PORTB, 7 }; }
-    else if constexpr (P == c6) { return pin_info{ &PINC, &DDRC, &PORTC, 6 }; }
-    else if constexpr (P == c7) { return pin_info{ &PINC, &DDRC, &PORTC, 7 }; }
-    else if constexpr (P == d0) { return pin_info{ &PIND, &DDRD, &PORTD, 0 }; }
-    else if constexpr (P == d1) { return pin_info{ &PIND, &DDRD, &PORTD, 1 }; }
-    else if constexpr (P == d2) { return pin_info{ &PIND, &DDRD, &PORTD, 2 }; }
-    else if constexpr (P == d3) { return pin_info{ &PIND, &DDRD, &PORTD, 3 }; }
-    else if constexpr (P == d4) { return pin_info{ &PIND, &DDRD, &PORTD, 4 }; }
-    else if constexpr (P == d5) { return pin_info{ &PIND, &DDRD, &PORTD, 5 }; }
-    else if constexpr (P == d6) { return pin_info{ &PIND, &DDRD, &PORTD, 6 }; }
-    else if constexpr (P == d7) { return pin_info{ &PIND, &DDRD, &PORTD, 7 }; }
-    else if constexpr (P == e2) { return pin_info{ &PINE, &DDRE, &PORTE, 2 }; }
-    else if constexpr (P == e6) { return pin_info{ &PINE, &DDRE, &PORTE, 6 }; }
-    else if constexpr (P == f0) { return pin_info{ &PINF, &DDRF, &PORTF, 0 }; }
-    else if constexpr (P == f1) { return pin_info{ &PINF, &DDRF, &PORTF, 1 }; }
-    else if constexpr (P == f4) { return pin_info{ &PINF, &DDRF, &PORTF, 4 }; }
-    else if constexpr (P == f5) { return pin_info{ &PINF, &DDRF, &PORTF, 5 }; }
-    else if constexpr (P == f6) { return pin_info{ &PINF, &DDRF, &PORTF, 6 }; }
-    else if constexpr (P == f7) { return pin_info{ &PINF, &DDRF, &PORTF, 7 }; }
-
-    __builtin_unreachable();
+template <uint32_t R>
+volatile uint8_t& get_mem() {
+    return *reinterpret_cast<volatile uint8_t*>(R + __SFR_OFFSET);
 }
 
+template <pin P>
+constexpr pin_info get_pin_info() {
+    using namespace pins;
+
+    constexpr pin_info map[] = {
+        { pinb, ddrb, portb, 0 },
+        { pinb, ddrb, portb, 1 },
+        { pinb, ddrb, portb, 2 },
+        { pinb, ddrb, portb, 3 },
+        { pinb, ddrb, portb, 4 },
+        { pinb, ddrb, portb, 5 },
+        { pinb, ddrb, portb, 6 },
+        { pinb, ddrb, portb, 7 },
+        { pinc, ddrc, portc, 6 },
+        { pinc, ddrc, portc, 7 },
+        { pind, ddrd, portd, 0 },
+        { pind, ddrd, portd, 1 },
+        { pind, ddrd, portd, 2 },
+        { pind, ddrd, portd, 3 },
+        { pind, ddrd, portd, 4 },
+        { pind, ddrd, portd, 5 },
+        { pind, ddrd, portd, 6 },
+        { pind, ddrd, portd, 7 },
+        { pine, ddre, porte, 2 },
+        { pine, ddre, porte, 6 },
+        { pinf, ddrf, portf, 0 },
+        { pinf, ddrf, portf, 1 },
+        { pinf, ddrf, portf, 4 },
+        { pinf, ddrf, portf, 5 },
+        { pinf, ddrf, portf, 6 },
+        { pinf, ddrf, portf, 7 }
+    };
+
+    return map[P];
+}
 
 template <pin RowPin, size_t RowN, pin ColPin, size_t ColN, class... Layouts>
 void test_key (static_vector<array<keys::key,sizeof...(Layouts)>,16>& pressed,
                uint8_t& mod_keys, typelist<Layouts...>) {
-    auto info = get_pin_info<ColPin>();
+    constexpr auto info = get_pin_info<ColPin>();
 
-    if (!((*info.pin) & (1 << info.n))) {
+    if (!(get_mem<info.pin>() & (1 << info.n))) {
         array<keys::key,sizeof...(Layouts)> possible_keys {
             index_vallist<typename index_typelist<Layouts, RowN>::type, ColN>::value...
         };
@@ -137,35 +141,35 @@ void test_key (static_vector<array<keys::key,sizeof...(Layouts)>,16>& pressed,
 
 // Power a pin so that keys on that line can be tested
 template <pin P> void power_pin() {
-    auto info = get_pin_info<P>();
+    constexpr auto info = get_pin_info<P>();
 
     //DDR <- 1: sets pin to output mode
-    *info.ddr  |=  (1 << info.n);
+    get_mem<info.ddr>()  |=  (1 << info.n);
 
     //PORT <- 0: sets pin to low output
-    *info.port &= ~(1 << info.n);
+    get_mem<info.port>() &= ~(1 << info.n);
 }
 
 // Stop powering a pin
 template <pin P> void unpower_pin() {
-    auto info = get_pin_info<P>();
+    constexpr auto info = get_pin_info<P>();
 
     //DDR <- 0: sets pin to input mode
-    *info.ddr  &= ~(1 << info.n);
+    get_mem<info.ddr>()  &= ~(1 << info.n);
 
     //PORT <- 0: sets pin to normal mode
-    *info.port &= ~(1 << info.n);
+    get_mem<info.port>() &= ~(1 << info.n);
 }
 
 // Set up a pin for reading at a later time
 template <pin P> void pin_set_for_reading() {
-    auto info = get_pin_info<P>();
+    constexpr auto info = get_pin_info<P>();
 
     //DDR <- 0: sets pin to input mode
-    *info.ddr  &= ~(1 << info.n);
+    get_mem<info.ddr>()  &= ~(1 << info.n);
 
     //PORT <- 0: sets pin to pullup resistor mode
-    *info.port |=  (1 << info.n);
+    get_mem<info.port>() |=  (1 << info.n);
 }
 
 // Set up all pins in a pin set for reading

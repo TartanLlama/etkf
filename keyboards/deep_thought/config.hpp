@@ -34,8 +34,8 @@ auto test_keyboard::layouts() {
 
         typelist<
             row<tab, one, two, thre,four,five,six, sevn,eigh,nine,zero,bspc, lay3>,
-            row<lctl,a,   o,   e,   u,   i,   d,   h,   t,   n,   s,   ent>,
-            row<lsft,scln,q,   j,   k,   x,   b,   m,   w,   v,   z,   del>,
+            row<lctl,lbra,rbra,slsh,eql ,min ,nuhs,bsla,tild,n,   s,   ent>,
+            row<lsft,F1,  F2,  F3,  F4,  F5,  F6,  F7,  F8,  F9,  F10, del>,
             row<caps,lgui,esc,lalt, spc,      lay1,lay3,   left,down,up,  righ>
             >,
 
@@ -44,14 +44,6 @@ auto test_keyboard::layouts() {
             row<lctl,a,   s,   d,   f,   g,   h,   j,   k,   l,   scln,ent>,
             row<lsft,z,   x,   c,   v,   b,   n,   m,   comm,dot, slsh,del>,
             row<caps,lgui,esc,lalt, spc,      lay1,lay3,   left,down,up,  righ>
-            >,
-
-        typelist<
-            row<tab, swi0,swi2,e,   r,   t,   y,   u,   i,   o,   p,   bspc, lay3>,
-            row<lctl,a,   s,   d,   f,   g,   h,   j,   k,   l,   scln,ent>,
-            row<lsft,z,   x,   c,   v,   b,   n,   m,   comm,dot, slsh,del>,
-            row<caps,lgui,esc,lalt, spc,      lay1,lay3,   left,down,up,  righ>
             >
-
     >{};
 }
