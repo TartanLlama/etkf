@@ -79,7 +79,7 @@ There is a Python script which will do all of the legwork for you:
 
 ### Dependencies:
 
-- C++17 AVR compiler (you can build one by following [these instructions](http://www.atmel.com/webdoc/AVRLibcReferenceManual/install_tools.html))
+- C++17 AVR compiler (you can build one by following [these instructions](https://www.microchip.com/webdoc/AVRLibcReferenceManual/install_tools.html))
 - CMake
 - Hardware to run it on
 - Nachos (optional)
